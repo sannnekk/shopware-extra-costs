@@ -1,0 +1,27 @@
+<sw-container columns="100%" rows="auto" v-if="!loading.product">
+	<sw-container columns="100%" rows="auto">
+		<sw-card title="Extra-Kosten">
+			<sw-data-grid v-if="available" :data-source="properties" :columns="columns" :show-selection="false" :compact-mode="true" style="margin:-30px">
+
+				<template slot="column-option-name" slot-scope="{ item }">
+					<b>{{ item.name }}:</b>
+					<span>&nbsp;{{ item.value }}</span>
+				</template>
+
+				<template v-for="quantity in quantities" :key="quantity.id" :slot="`column-quantity-${quantity.id}`" slot-scope="{ item, compact }">
+					<sw-field type="number" :size="compact ? 'small' : 'default'" :value="item.prices[quantity.id]" @input-change="onPriceChange(quantity.id, item.id)"/>
+				</template>
+
+				<template slot="column-setup-cost" slot-scope="{ item, compact }">
+					<sw-field type="number" :size="compact ? 'small' : 'default'" :value="item.prices['setup-cost']" @input-change="onSetupCostChange('setup-cost', item.id)"/>
+				</template>
+
+				<template slot="column-film-cost" slot-scope="{ item, compact }">
+					<sw-field type="number" :size="compact ? 'small' : 'default'" :value="item.prices['film-cost']" @input-change="onFilmCostChange('film-cost', item.id)"/>
+				</template>
+
+			</sw-data-grid>
+			<p v-else>Fügen Sie erst die Varianten hinzu</p>
+		</sw-card>
+	</sw-container>
+</sw-container>

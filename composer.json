@@ -1,0 +1,18 @@
+{
+  "name": "hmnet/hmnet-product-extra-costs",
+  "description": "Variant prices",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "HMnetProductExtraCosts\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "HMnetProductExtraCosts\\HMnetProductExtraCosts",
+    "label": {
+      "de-DE": "Aufpreise und Extra-Preise für Varianten",
+      "en-GB": "Additional prices for variants"
+    }
+  }
+}
