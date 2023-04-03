@@ -1,4 +1,6 @@
-<?php declare (strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace HMnetProductExtraCosts\Extension\Content\Product;
 
@@ -10,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 
 class ExtraCostsExtensionDefinition extends EntityDefinition
 {
@@ -23,7 +25,7 @@ class ExtraCostsExtensionDefinition extends EntityDefinition
 
     public function getEntityClass(): string
     {
-        return ExampleExtensionEntity::class;
+        return ExtraCostsExtensionEntity::class;
     }
 
     protected function defineFields(): FieldCollection
@@ -31,7 +33,7 @@ class ExtraCostsExtensionDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
             new FkField('product_id', 'productId', ProductDefinition::class),
-            (new StringField('json', 'json')),
+            (new LongTextField('json', 'json')),
 
             new OneToOneAssociationField('product', 'product_id', 'id', ProductDefinition::class, false),
         ]);

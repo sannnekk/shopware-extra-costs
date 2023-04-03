@@ -6,7 +6,7 @@
 
     <services>
         <service id="HMnetProductExtraCosts\Extension\Content\Product\ExtraCostsExtension">
-            <tag name="shopware.entity.extension"/>
+            <tag name="shopware.entity.extension" entity="hmnet_extracosts_extension" />
         </service>
 
         <service id="HMnetProductExtraCosts\Extension\Content\Product\ExtraCostsExtensionDefinition">

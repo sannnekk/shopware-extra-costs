@@ -1,6 +1,7 @@
 import template from './sw-product-detail-extracosts.html.twig'
+
 const { Criteria } = Shopware.Data
-const { Component, Mixin, Context } = Shopware
+const { Context } = Shopware
 
 const {
     mapState,
@@ -21,7 +22,9 @@ Shopware.Component.register('sw-product-detail-extracosts', {
     },
 
     data() {
-        return {}
+        return {
+            properties: []
+        }
     },
 
     computed: {
@@ -80,31 +83,20 @@ Shopware.Component.register('sw-product-detail-extracosts', {
             return _quantities
         },
 
-        properties() {
-            const _properties = []
+        extraCosts() {
+            return JSON.parse(this.product.extensions.extraCostsExtension?.json || '[]')
+        },
 
-            this.product.configuratorSettings?.forEach(async ({ option }, index) => {
-                const _prices = {
-                    'setup-cost': 0,
-                    'film-cost': 0,
-                }
+        productRepository() {
+            return this.repositoryFactory.create('product')
+        },
 
-                this.quantities.forEach(quantity => 
-                    _prices[quantity.id] = 0
-                )
+        propertyGroupRepository() {
+            return this.repositoryFactory.create('property_group')
+        },
 
-                if (option.groupId !== COLOR_OPTION_GROUP_ID) {
-                    _properties.push({
-                        id: String(index),
-                        name: option.groupId,
-                        value: option.name,
-                        prices: _prices,
-                        groupId: option.groupId,
-                    })
-                }
-            })
-
-            return _properties.sort((a, b) => a.name > b.name ? 1 : -1)
+        extraCostRepository() {
+            return this.repositoryFactory.create('hmnet_extracosts_extension')
         },
 
         ...mapState('swProductDetail', [
@@ -118,29 +110,84 @@ Shopware.Component.register('sw-product-detail-extracosts', {
     },
 
     watch: {
-        product: (a, b) => console.log('product changed', a, b),
+        product(newProduct, oldProduct) {
+            if (newProduct.id === oldProduct.id)
+                return
+            
+            this.setProperties()
+        }
     },
 
     mounted() {
-        this.mountedComponent();
+        this.mountedComponent()
     },
 
     methods: {
         mountedComponent() {
-            console.log(this.loading)
+            this.setProperties()
         },
 
-        async getOptionGroupName(groupId) {
-            const criteria = new Criteria(1, 1);
-            
-            criteria.addFilter(Criteria.equalsAny('id', groupId));
-            criteria.addAssociation('group');
+        setProperties() {
+            if (this.extraCosts && this.extraCosts.length > 0)
+                return this.properties = this.extraCosts
 
-            return await this.optionRepository.search(criteria, Context.api).first().group.name || ''
+            this.product.configuratorSettings?.forEach(({ option }, index) => {
+                const _prices = {
+                    'setup-cost': 0,
+                    'film-cost': 0,
+                }
+
+                this.quantities.forEach(quantity => 
+                    _prices[quantity.id] = 0
+                )
+
+                if (option.groupId !== COLOR_OPTION_GROUP_ID) {
+                    this.properties.push({
+                        id: String(index),
+                        name: option.groupId,
+                        value: option.name,
+                        prices: _prices,
+                        groupId: option.groupId,
+                    })
+                }
+            })
+
+            this.addPropertyGroupNames()
+
+            this.properties.sort((a, b) => a.name > b.name ? 1 : -1)
         },
 
-        onPriceChange(...args) {
-            console.log('onPriceChange', args);
+        onInputChange() {
+            this.save()
         },
+
+        save() {
+            let ext = this.product.extensions.extraCostsExtension
+
+            if (!ext || ext?.length === 0) {
+                ext = this.extraCostRepository.create(Context.api)
+                ext.productId = this.product.id
+            }
+
+            ext.json = JSON.stringify(this.properties)
+            this.extraCostRepository.save(ext, Context.api)
+
+            return ext
+        },
+
+        addPropertyGroupNames() {
+            const criteria = new Criteria()
+            const ids = this.properties.map(property => property.groupId)
+
+            criteria.setIds(ids)
+
+            this.propertyGroupRepository.search(criteria, Context.api).then((groups) => {
+                this.properties = this.properties.map(property => {
+                    const group = groups.find(group => group.id === property.groupId)
+                    property.name = group.name
+                    return property
+                })
+            })
+        }
     }
-});
+})
