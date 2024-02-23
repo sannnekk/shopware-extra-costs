@@ -1,0 +1,28 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/buy-widget.html.twig' %}
+
+{% block buy_widget_price %}{% endblock %}
+{% block buy_widget_tax %}{% endblock %}
+
+{% block buy_widget_buy_form %}
+	{{parent()}}
+
+	<div class="product-detail-price-container">
+		{% sw_include '@Storefront/storefront/component/buy-widget/buy-widget-price.html.twig' %}
+	</div>
+
+	<div class="product-detail-tax-container">
+		{% if context.taxState == "gross" %}
+			{% set taxText = "general.grossTaxInformation"|trans|sw_sanitize %}
+		{% else %}
+			{% set taxText = "general.netTaxInformation"|trans|sw_sanitize %}
+		{% endif %}
+
+		<p class="product-detail-tax">
+			{% block buy_widget_tax_link %}
+				<a class="product-detail-tax-link" href="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}" title="{{ taxText }}" data-bs-toggle="modal" data-url="{{ path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') }) }}">
+					{{ taxText }}
+				</a>
+			{% endblock %}
+		</p>
+	</div>
+{% endblock %}

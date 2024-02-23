@@ -1,0 +1,34 @@
+{% sw_extends '@Storefront/storefront/page/product-detail/configurator/select.html.twig' %}
+
+{% block page_product_detail_configurator_group_title_text %}
+	<div class="row">
+		<div class="col-6">
+			{{ group.translated.name }}
+		</div>
+		<div class="col-4">
+			<div class="price-per-unit-block" style="text-align: right">
+				<div class="extra-price">
+					<span class="amount" style="color:#999">
+						{{ page.product.minPurchase }}
+						x
+					</span>
+					<span class="number">0</span>
+					{{ context.currency.symbol }}
+				</div>
+			</div>
+		</div>
+		<div class="col-2">
+			<div class="price-sum-block" style="text-align: right">
+				<div class="extra-price" data-group-id="{{ group.id }}">
+					0
+					{{ context.currency.symbol }}
+				</div>
+			</div>
+		</div>
+	</div>
+	<style>
+		.product-detail-configurator-group-title {
+			display: block;
+		}
+	</style>
+{% endblock %}

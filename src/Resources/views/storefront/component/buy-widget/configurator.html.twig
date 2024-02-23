@@ -1,0 +1,96 @@
+{% sw_extends '@Storefront/storefront/component/buy-widget/configurator.html.twig' %}
+
+{% block buy_widget_configurator_form %}
+	{{ parent() }}
+	<hr>
+	<div class="film-print-costs">
+		{% set positions = page.extensions.additionalPositions %}
+		{% if positions.setup|length > 0 %}
+			<h4>Einrichtungskosten:</h4>
+		{% endif %}
+		{% for position in positions.setup %}
+			<div class="print-costs" style="display:flex;justify-content:space-between">
+				<span style="font-weight:normal">
+					{{ position.optionName }}
+				</span>
+				<span class="hmnet_extracosts_setup_cost">
+					{{ position.price }}
+					{{ context.currency.symbol }}
+				</span>
+			</div>
+		{% endfor %}
+		{% if positions.film|length > 0 %}
+			<hr>
+			<h4>Filmkosten:</h4>
+		{% endif %}
+		{% for position in positions.film %}
+			<div class="film-costs" style="display:flex;justify-content:space-between">
+				<span style="font-weight:normal">
+					{{ position.optionName }}
+				</span>
+				<span class="hmnet_extracosts_film_cost">
+					{{ position.price }}
+					{{ context.currency.symbol }}
+				</span>
+			</div>
+		{% endfor %}
+	</div>
+	<style>
+		.product-detail-configurator {
+			border: 1px solid #bcc1c7;
+			border-radius: 0.3em;
+			padding: 0.7em 0.7em 0;
+			box-sizing: border-box;
+			margin-bottom: 1em;
+		}
+		.film-print-costs {
+			font-weight: 700;
+			margin-bottom: 0.5rem;
+			padding-top: 0.5rem;
+		}
+	</style>
+	{{ dump(page.extensions.extraCosts) }}
+{% endblock %}
+
+{% block buy_widget_configurator_groups %}
+	<div class="row">
+		<div class="col-6">Option</div>
+		<div class="col-4" style="text-align: right">Preis</div>
+		<div class="col-2" style="text-align: right">Summe</div>
+	</div>
+	<hr>
+	{{ parent() }}
+{% endblock %}
+
+{% block buy_widget_configurator_group_title_text %}
+	<div class="row hmnet-extracosts-price-line">
+		<div class="col-6">
+			{{ group.translated.name }}
+		</div>
+		<div class="col-4">
+			<div class="price-per-unit-block" style="text-align: right">
+				<div class="extra-price">
+					<span class="hmnet_extracosts_amount" style="color:#999">
+						{{ page.product.minPurchase }}
+					</span>
+					x
+					<span class="hmnet_extracosts_cost_per_unit" data-group-id="{{ group.id }}">0</span>
+					{{ context.currency.symbol }}
+				</div>
+			</div>
+		</div>
+		<div class="col-2">
+			<div class="price-sum-block" style="text-align: right">
+				<div class="hmnet_extracosts_cost" data-group-id="{{ group.id }}">
+					0
+					{{ context.currency.symbol }}
+				</div>
+			</div>
+		</div>
+	</div>
+	<style>
+		.cms-block-product-description-reviews {
+			display: none;
+		}
+	</style>
+{% endblock %}

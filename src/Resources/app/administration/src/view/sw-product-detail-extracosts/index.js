@@ -8,8 +8,6 @@ const {
     mapGetters
 } = Shopware.Component.getComponentHelper()
 
-const COLOR_OPTION_GROUP_ID = '7e0dcacf7f3d4d039de8ec33ede83181'
-
 Shopware.Component.register('sw-product-detail-extracosts', {
     template,
 
@@ -84,7 +82,7 @@ Shopware.Component.register('sw-product-detail-extracosts', {
         },
 
         extraCosts() {
-            return JSON.parse(this.product.extensions.extraCostsExtension?.json || '[]')
+            return JSON.parse(this.product.extensions?.extraCostsExtension?.json || '[]')
         },
 
         productRepository() {
@@ -128,8 +126,12 @@ Shopware.Component.register('sw-product-detail-extracosts', {
         },
 
         setProperties() {
-            if (this.extraCosts && this.extraCosts.length > 0)
-                return this.properties = this.extraCosts
+            if (this.extraCosts && this.extraCosts.length > 0) {
+                this.properties = this.extraCosts
+                this.addPropertyGroupNames()
+                this.sortProperties()     
+                return
+            }
 
             this.product.configuratorSettings?.forEach(({ option }, index) => {
                 const _prices = {
@@ -140,29 +142,32 @@ Shopware.Component.register('sw-product-detail-extracosts', {
                 this.quantities.forEach(quantity => 
                     _prices[quantity.id] = 0
                 )
-
-                if (option.groupId !== COLOR_OPTION_GROUP_ID) {
-                    this.properties.push({
-                        id: String(index),
-                        name: option.groupId,
-                        value: option.name,
-                        prices: _prices,
-                        groupId: option.groupId,
-                    })
-                }
+                
+                this.properties.push({
+                    id: String(index),
+                    optionId: option.id,
+                    name: option.groupId,
+                    value: option.name,
+                    prices: _prices,
+                    groupId: option.groupId,
+                })
             })
 
             this.addPropertyGroupNames()
-
-            this.properties.sort((a, b) => a.name > b.name ? 1 : -1)
+            this.sortProperties()            
         },
 
         onInputChange() {
             this.save()
         },
 
-        save() {
-            let ext = this.product.extensions.extraCostsExtension
+        async save() {
+            const criteria = new Criteria()
+            criteria.addFilter(
+                Criteria.equals('hmnet_extracosts_extension.product_id', this.product.id)
+            )
+            
+            let ext = await this.extraCostRepository.search(criteria, Context.api)
 
             if (!ext || ext?.length === 0) {
                 ext = this.extraCostRepository.create(Context.api)
@@ -188,6 +193,10 @@ Shopware.Component.register('sw-product-detail-extracosts', {
                     return property
                 })
             })
+        },
+
+        sortProperties() {
+            this.properties = this.properties.sort((a, b) => a.name > b.name ? 1 : -1)
         }
     }
 })

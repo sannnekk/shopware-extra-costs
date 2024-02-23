@@ -12,5 +12,10 @@
         <service id="HMnetProductExtraCosts\Extension\Content\Product\ExtraCostsExtensionDefinition">
             <tag name="shopware.entity.definition" entity="hmnet_extracosts_extension" />
         </service>
+
+        <service id="HMnetProductExtraCosts\Service\AddExtracostsToProductPage" >
+            <argument type="service" id="product.repository"/>
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>
